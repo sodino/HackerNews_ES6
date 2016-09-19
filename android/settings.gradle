@@ -1,0 +1,3 @@
+rootProject.name = 'HackerNews_ES6'
+
+include ':app'
