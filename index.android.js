@@ -1,53 +1,76 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+import React, {Component} from 'react';
 
-import React, { Component } from 'react';
 import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View
+    AppRegistry,
+    StyleSheet,
+    Navigator,
+    View,
+    WebView,
+    BackAndroid,
+    ToolbarAndroid
 } from 'react-native';
 
-class HackerNews_ES6 extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
-    );
-  }
-}
+import Dashboard from './App/Views/Dashboard/index.android.js';
+import Post from './App/Views/Post/index.android.js';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+
+
+
+var _navigator;
+
+BackAndroid.addEventListener('hardwareBackPress', () => {
+  if (_navigator.getCurrentRoutes().length === 1  ) {
+    return false;
+  }
+  _navigator.pop();
+  return true;
 });
 
-AppRegistry.registerComponent('HackerNews_ES6', () => HackerNews_ES6);
+export default class HackerNews extends Component {
+  render() {
+    return (
+        <Navigator
+            style={styles.container}
+            tintColor='#FF6600'
+            initialRoute={{id: 'Dashboard'}}
+            renderScene={this.navigatorRenderScene}/>
+    );
+  }
+
+  navigatorRenderScene(route, navigator){
+    _navigator = navigator;
+    switch (route.id) {
+      case 'Dashboard':
+        return (<Dashboard navigator={navigator} />);
+      case 'Post':
+        return (<Post navigator={navigator}
+                      title={route.title}
+                      post={route.post}/>);
+      case 'Web':
+        return (
+            <View style={{flex: 1}}>
+              <ToolbarAndroid style={styles.toolbar}
+                              title={route.title}
+                              navIcon={{uri: "ic_arrow_back_white_24dp", isStatic: true}}
+                              onIconClicked={navigator.pop}
+                              titleColor={'#FFFFFF'}/>
+              <WebView source={{uri: route.url}}
+                       javaScriptEnabled={true}/>
+            </View>
+        );
+    }
+  }
+};
+
+var styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6F6EF',
+  },
+  toolbar: {
+    height: 56,
+    backgroundColor: '#FF6600'
+  }
+});
+
+AppRegistry.registerComponent('HackerNews_ES6', () => HackerNews);
